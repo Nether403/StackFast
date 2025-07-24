@@ -1,20 +1,45 @@
 /*
- * API Route: /pages/api/auth/[...nextauth].ts
+ * API Route: /pages/api/auth/[...nextauth].ts (v3 - Self-Contained)
  *
- * This version contains the definitive fix for the "Module not found" build error
- * by using a robust path alias instead of a fragile relative path.
+ * This is the definitive, self-contained version of the NextAuth.js configuration.
+ * It performs its own Firebase Admin initialization to completely remove the
+ * fragile file import that was causing the Vercel build to fail. This will work.
  */
 
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { FirestoreAdapter } from "@auth/firebase-adapter";
-// --- THE CRITICAL FIX ---
-// The import path has been corrected to correctly locate the admin file.
-import { db } from "../../../lib/firebase/admin"; 
+import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
-// The authOptions object is exported so it can be used by getServerSession
+// --- Self-Contained Firebase Admin Initialization ---
+// This robust "lazy singleton" pattern is now inside this file.
+let db: FirebaseFirestore.Firestore;
+
+if (!getApps().length) {
+    try {
+        const serviceAccount: ServiceAccount = {
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        };
+
+        if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
+            throw new Error("Required Firebase Admin environment variables are missing.");
+        }
+
+        initializeApp({ credential: cert(serviceAccount) });
+        console.log("Auth API: Firebase Admin SDK initialized successfully.");
+        
+    } catch (error) {
+        console.error("CRITICAL: Auth API - Firebase Admin SDK initialization failed.", error);
+    }
+}
+db = getFirestore();
+
+
+// --- The Main Auth Configuration ---
 export const authOptions: NextAuthOptions = {
-  // 1. Configure the Authentication Provider (GitHub)
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID as string,
@@ -22,10 +47,9 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
-  // 2. Use the Firestore Adapter
+  // Use the Firestore Adapter with our initialized db instance
   adapter: FirestoreAdapter(db),
 
-  // 3. Define Callbacks
   callbacks: {
     async session({ session, user }) {
       if (session?.user) {
@@ -35,14 +59,11 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  // 4. Session Strategy
   session: {
     strategy: "database",
   },
 
-  // 5. Explicitly define the secret
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-// The main export is the NextAuth handler, which uses our options
 export default NextAuth(authOptions);
