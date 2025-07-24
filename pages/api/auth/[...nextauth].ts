@@ -2,15 +2,15 @@
  * API Route: /pages/api/auth/[...nextauth].ts
  *
  * This version contains the definitive fix for the "Module not found" build error
- * by correcting the import path for the Firebase admin configuration.
+ * by using a robust path alias instead of a fragile relative path.
  */
 
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { FirestoreAdapter } from "@auth/firebase-adapter";
 // --- THE CRITICAL FIX ---
-// The import path has been corrected to correctly locate the admin file.
-import { db } from "../../../lib/firebase/admin"; 
+// The import path now uses the absolute "@/" alias.
+import { db } from "@/lib/firebase/admin"; 
 
 // The authOptions object is exported so it can be used by getServerSession
 export const authOptions: NextAuthOptions = {
