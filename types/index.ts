@@ -22,5 +22,16 @@ export interface GeminiAnalysis {
   complexity: 'Low' | 'Moderate' | 'High';
 }
 
+// NEW: A type for the saved blueprint documents fetched from the API
+export interface SavedBlueprint {
+  id: string;
+  projectName: string;
+  createdAt: string; // Stored as an ISO string
+  blueprintData: {
+    recommendedStack: ToolProfile[];
+    // ... other blueprint data
+  };
+}
+
 // We can add other shared types here as the application grows,
 // for example, the structure of a saved Blueprint or an Organizer Task. 
