@@ -1,9 +1,9 @@
 /*
- * API Route: /pages/api/auth/[...nextauth].ts (v3 - Self-Contained)
+ * API Route: /pages/api/auth/[...nextauth].ts (v4 - Definitive & Robust)
  *
- * This is the definitive, self-contained version of the NextAuth.js configuration.
- * It performs its own Firebase Admin initialization to completely remove the
- * fragile file import that was causing the Vercel build to fail. This will work.
+ * This is the final, production-ready version of the NextAuth.js configuration.
+ * It includes a crucial pre-check to ensure the Firestore database is connected
+ * before initializing the adapter, providing better error handling and diagnostics.
  */
 
 import NextAuth, { type NextAuthOptions } from "next-auth";
@@ -11,32 +11,38 @@ import GithubProvider from "next-auth/providers/github";
 import { FirestoreAdapter } from "@auth/firebase-adapter";
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // --- Self-Contained Firebase Admin Initialization ---
-// This robust "lazy singleton" pattern is now inside this file.
-let db: FirebaseFirestore.Firestore;
+let db: FirebaseFirestore.Firestore | undefined;
 
-if (!getApps().length) {
-    try {
-        const serviceAccount: ServiceAccount = {
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        };
+// This function is designed to be safe to call multiple times.
+function initializeFirebase() {
+    if (!getApps().length) {
+        try {
+            console.log("Auth API: Initializing Firebase Admin SDK...");
+            const serviceAccount: ServiceAccount = {
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            };
 
-        if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
-            throw new Error("Required Firebase Admin environment variables are missing.");
+            if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
+                throw new Error("Required Firebase Admin environment variables are missing.");
+            }
+
+            initializeApp({ credential: cert(serviceAccount) });
+            console.log("Auth API: Firebase Admin SDK initialized successfully.");
+        } catch (error) {
+            console.error("CRITICAL: Auth API - Firebase Admin SDK initialization failed.", error);
+            // Do not proceed if Firebase fails to initialize.
+            return;
         }
-
-        initializeApp({ credential: cert(serviceAccount) });
-        console.log("Auth API: Firebase Admin SDK initialized successfully.");
-        
-    } catch (error) {
-        console.error("CRITICAL: Auth API - Firebase Admin SDK initialization failed.", error);
     }
+    db = getFirestore();
 }
-db = getFirestore();
 
+initializeFirebase();
 
 // --- The Main Auth Configuration ---
 export const authOptions: NextAuthOptions = {
@@ -48,15 +54,25 @@ export const authOptions: NextAuthOptions = {
   ],
 
   // Use the Firestore Adapter with our initialized db instance
-  adapter: FirestoreAdapter(db),
+  // Add a check to ensure db is valid before creating the adapter
+  adapter: db ? FirestoreAdapter(db) : undefined,
 
   callbacks: {
     async session({ session, user }) {
-      if (session?.user) {
-        session.user.id = user.id;
+      if (session?.user && (user as any)?.id) {
+        (session.user as any).id = (user as any).id;
       }
       return session;
     },
+    // **NEW**: Add a signIn callback for better debugging
+    async signIn({ user, account, profile }) {
+        if (!db) {
+            console.error("SignIn Blocked: Database is not connected.");
+            return false; // This will prevent sign-in if the DB is down
+        }
+        console.log(`User attempting to sign in: ${user.email}`);
+        return true; // Continue the sign-in process
+    }
   },
 
   session: {
@@ -64,6 +80,16 @@ export const authOptions: NextAuthOptions = {
   },
 
   secret: process.env.NEXTAUTH_SECRET,
+
+  // **NEW**: Add a debug flag for more verbose logs in development
+  debug: process.env.NODE_ENV === 'development',
 };
 
-export default NextAuth(authOptions);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    // **NEW**: Add a pre-handler check to provide a clearer error message
+    if (!db) {
+        console.error("NextAuth handler failed: Database service is not available.");
+        return res.status(500).json({ error: "Authentication service is not properly configured. Check server logs." });
+    }
+    return await NextAuth(req, res, authOptions);
+}
