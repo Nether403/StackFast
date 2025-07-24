@@ -1,0 +1,93 @@
+[
+  {
+    "tool_id": "lovable_dev",
+    "name": "Lovable.dev",
+    "category": ["Low-Code Platform", "Web App Builder"],
+    "description": "An AI-powered platform for creating full-stack web applications using natural language prompts.",
+    "input_types": ["natural_language"],
+    "output_types": ["source_code", "live_app"],
+    "frameworks": ["React", "Tailwind CSS", "Node.js", "Supabase"],
+    "integrations": ["Supabase", "Figma", "Netlify", "GitHub"],
+    "supported_languages": ["JavaScript", "TypeScript"],
+    "hosted": true,
+    "self_hostable": false,
+    "llm_backends": ["OpenAI GPT-4", "Claude"],
+    "notable_strengths": [
+      "End-to-end automation (UI + backend + auth)",
+      "Great for MVPs and internal tools",
+      "User-friendly interface for non-coders"
+    ],
+    "known_limitations": [
+      "Limited custom logic for complex apps",
+      "Platform lock-in unless code is exported"
+    ],
+    "integration_complexity": 1,
+    "api_available": true,
+    "popularity_score": 0.83,
+    "community_sentiment": "positive",
+    "compatible_with": ["Supabase", "GitHub", "Cursor", "Figma"],
+    "compatibility_notes": "Works well with Supabase for data and auth, Figma for design import, and GitHub for code export.",
+    "default_use_case": "Web MVP builder for founders and product teams"
+  },
+  {
+    "tool_id": "cursor_ide",
+    "name": "Cursor",
+    "category": ["AI IDE", "Developer Tool"],
+    "description": "A GPT-powered coding environment built on VS Code, designed for AI-assisted software development.",
+    "input_types": ["source_code", "natural_language"],
+    "output_types": ["source_code", "code suggestions"],
+    "frameworks": ["React", "Node.js", "Python", "Go"],
+    "integrations": ["GitHub", "Claude", "OpenAI"],
+    "supported_languages": ["JavaScript", "TypeScript", "Python", "C++", "Go"],
+    "hosted": false,
+    "self_hostable": true,
+    "llm_backends": ["OpenAI GPT-4", "Claude"],
+    "notable_strengths": [
+      "Inline AI coding assistance",
+      "Autonomous code refactoring",
+      "Context-aware multi-file navigation"
+    ],
+    "known_limitations": [
+      "Limited real-time collaboration",
+      "Heavy local resource usage"
+    ],
+    "integration_complexity": 2,
+    "api_available": false,
+    "popularity_score": 0.78,
+    "community_sentiment": "positive",
+    "compatible_with": ["GitHub", "Claude", "OpenAI"],
+    "compatibility_notes": "Easily integrates with GitHub and Claude/OpenAI APIs for coding support.",
+    "default_use_case": "AI-assisted professional development in VS Code"
+  },
+  {
+    "tool_id": "gpt_4o",
+    "name": "GPT-4o",
+    "category": ["LLM", "Multimodal AI"],
+    "description": "OpenAI's most advanced multimodal model, capable of understanding text, images, audio, and code.",
+    "input_types": ["text", "image", "audio", "code"],
+    "output_types": ["text", "code", "voice"],
+    "frameworks": [],
+    "integrations": ["OpenAI API", "ChatGPT", "Zapier"],
+    "supported_languages": ["Any via API"],
+    "hosted": true,
+    "self_hostable": false,
+    "llm_backends": ["N/A"],
+    "notable_strengths": [
+      "Real-time multimodal processing",
+      "Fast response time",
+      "Cost-efficient compared to GPT-4 Turbo"
+    ],
+    "known_limitations": [
+      "No self-hosting option",
+      "Requires API key and billing"
+    ],
+    "integration_complexity": 1,
+    "api_available": true,
+    "popularity_score": 0.96,
+    "community_sentiment": "highly_positive",
+    "compatible_with": ["Cursor", "Blackbox", "Zapier", "Lovable.dev"],
+    "compatibility_notes": "Integrates easily with any text-based interface or dev environment.",
+    "default_use_case": "Multimodal AI assistant, developer copilot, or backend LLM for web apps"
+  },
+ 
+]
