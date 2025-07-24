@@ -4,19 +4,12 @@
   "description": "StackFast - AI-powered tech stack recommendations with authentication and user management",
   "main": "index.js",
   "scripts": {
-    "dev": "node -r ts-node/register Scripts/check-env.ts && next dev",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "sync-db": "node Scripts/sync-firestore.js",
-    "seed-db": "node data/seed-database.js",
-    "update-db": "node -r ts-node/register data/update-database-files.ts",
-    "test-github": "node test-github-integration.js",
-    "test-gemini": "node -r ts-node/register test-gemini-integration.ts",
-    "deploy-prep": "pwsh ./deploy-prep.ps1",
-    "check-env": "node -r ts-node/register Scripts/check-env.ts",
-    "env-template": "node -r ts-node/register Scripts/check-env.ts --template"
+    "sync-db": "node Scripts/sync-firestore.js"
   },
   "dependencies": {
     "@auth/firebase-adapter": "^2.10.0",
