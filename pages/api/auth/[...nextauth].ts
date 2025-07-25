@@ -21,15 +21,15 @@ function initializeFirebase() {
     if (!getApps().length) {
         try {
             console.log("Auth API: Initializing Firebase Admin SDK...");
-            const serviceAccount: ServiceAccount = {
-                projectId: process.env.FIREBASE_PROJECT_ID,
-                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            };
-
-            if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
-                throw new Error("Required Firebase Admin environment variables are missing.");
+            
+            // Check if the service account key is provided
+            if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+                throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY environment variable is missing.");
             }
+
+            // Decode the Base64 encoded service account key
+            const serviceAccountKey = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY, 'base64').toString('utf8');
+            const serviceAccount: ServiceAccount = JSON.parse(serviceAccountKey);
 
             initializeApp({ credential: cert(serviceAccount) });
             console.log("Auth API: Firebase Admin SDK initialized successfully.");

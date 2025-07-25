@@ -38,12 +38,8 @@ const nextConfig = {
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
     
-    // Firebase Admin SDK (Separate Components)
-    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
-    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
-    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
-    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID,
-    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID,
+    // Firebase Admin SDK (Single Service Account Key)
+    FIREBASE_SERVICE_ACCOUNT_KEY: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
   },
 };
 
