@@ -15,6 +15,12 @@ const getPublicFirebaseConfig = () => {
 
 const nextConfig = {
   reactStrictMode: true,
+  trailingSlash: true,
+  output: 'export',
+  distDir: 'out',
+  images: {
+    unoptimized: true,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -23,22 +29,20 @@ const nextConfig = {
   },
   
   /**
-   * This `env` block now correctly provides BOTH the public client-side keys
-   * (via the getPublicFirebaseConfig function) AND the private server-side keys
-   * that our API routes and authentication need. This is the definitive fix.
+   * Environment variables for Netlify deployment
    */
   env: {
     // --- Public Client-Side Variables ---
     ...getPublicFirebaseConfig(),
     
-    // --- Private Server-Side Variables ---
+    // --- Server-Side Variables (for Netlify Functions) ---
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     GITHUB_ID: process.env.GITHUB_ID,
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
     
-    // Firebase Admin SDK (Single Service Account Key)
+    // Firebase Admin SDK
     FIREBASE_SERVICE_ACCOUNT_KEY: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
   },
 };
